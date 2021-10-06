@@ -8,15 +8,26 @@ class TimeSeriesDataset(Dataset):
     Assume the last column in the dataset is the label
     The rest of the columns are features
     """
-    def __init__(self, data, seq_len):
+    def __init__(self, data, seq_len, mean=None, std=None):
         # df to ndarray
         data = data.to_numpy()
         # ndarray to tensor
-        self.data = torch.from_numpy(data) # avoid unnecessary copy
+        data = torch.from_numpy(data) # avoid unnecessary copy
+        # normalize data
+        self.data = self.normalize(data, mean, std) 
         self.seq_len = seq_len 
     
     def __len__(self):
         return len(self.data) - self.seq_len
+
+    # z-score normalize
+    def normalize(self, data, mean, std):
+        if mean is None:
+            return data
+        else:
+            data -= mean
+            data /= std
+            return data
 
     def __getitem__(self, idx):
         x = self.data[idx: idx+self.seq_len, :-1]

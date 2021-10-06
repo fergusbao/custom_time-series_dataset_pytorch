@@ -4,15 +4,20 @@ import pandas as pd
 
 from timeSeriesDataset import TimeSeriesDataset, TimeSeriesDataLoader
 
+import utils
+
 
 
 def main():
     # read data
     df = pd.read_csv('Absenteeism_at_work.csv', sep=';')
     print(df.head())
-    
+
+    # calculate mean and std of train set
+    mean, std = utils.calculate_mean_std(df, train_size=0.8)
+
     # Prepare datasest and train/val/test split
-    timeSeriesDataset = TimeSeriesDataset(df, seq_len=5)
+    timeSeriesDataset = TimeSeriesDataset(df, seq_len=5, mean=mean, std=std)
     timeSeriesDataloader = TimeSeriesDataLoader(timeSeriesDataset, train_size=0.8, val_size=0.1, batch_size=64, num_workers=4)
 
     train_loader, val_loader, test_loader = timeSeriesDataloader.split()
